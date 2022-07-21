@@ -1,6 +1,6 @@
 import joi from 'joi'
 
-const postGamesSchema = joi.object({
+const postGameSchema = joi.object({
   name: joi.string().trim().required(),
   stockTotal: joi.number().greater(0).required(),
   pricePerDay: joi.number().greater(0).required(),
@@ -8,4 +8,4 @@ const postGamesSchema = joi.object({
   image: joi.string().uri().required()
 })
 
-export default postGamesSchema
+export default postGameSchema

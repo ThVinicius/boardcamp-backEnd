@@ -1,6 +1,6 @@
 import connection from '../database/postgres.js'
 
-export async function postGames(req, res) {
+export async function postGame(req, res) {
   try {
     const { name, image, stockTotal, categoryId, pricePerDay } = req.body
 
