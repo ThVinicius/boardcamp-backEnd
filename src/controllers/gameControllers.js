@@ -17,3 +17,27 @@ export async function postGame(req, res) {
     return res.status(500).send(error)
   }
 }
+
+export async function getGames(req, res) {
+  const { name } = req.query
+
+  try {
+    let games
+
+    if (name === undefined) {
+      games = await connection.query(
+        'SELECT g.*, c.name AS "categoryName" FROM games g JOIN categories c ON g."categoryId" = c.id'
+      )
+    } else {
+      games = await connection.query(
+        'SELECT g.*, c.name AS "categoryName" FROM games g JOIN categories c ON g."categoryId" = c.id WHERE LOWER(g.name) LIKE LOWER($1)',
+        [`${name}%`]
+      )
+    }
+
+    return res.status(200).send(games.rows)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send(error)
+  }
+}
