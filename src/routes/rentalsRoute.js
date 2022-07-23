@@ -2,10 +2,12 @@ import { Router } from 'express'
 import postRentalsValidate from '../middlewares/postRentalsValidate.js'
 import idParamsValidate from '../middlewares/idParamsValidate.js'
 import returnRentalsValidate from '../middlewares/returnRentalsValidate.js'
+import deleteRentalsValidate from '../middlewares/deleteRentalsValidate.js'
 import {
   postRentals,
   getRentals,
-  returnRentals
+  returnRentals,
+  deleteRentals
 } from '../controllers/rentalsControllers.js'
 
 const route = Router()
@@ -17,6 +19,12 @@ route.post(
   idParamsValidate,
   returnRentalsValidate,
   returnRentals
+)
+route.delete(
+  '/rentals/:id',
+  idParamsValidate,
+  deleteRentalsValidate,
+  deleteRentals
 )
 
 export default route

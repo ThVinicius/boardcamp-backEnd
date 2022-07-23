@@ -28,69 +28,65 @@ export async function getRentals(req, res) {
 
   const { gameId } = req.query
 
-  let rentals
+  let where = ''
+
+  if (customerId !== undefined || gameId !== undefined) {
+    const id = customerId !== undefined ? 'r."customerId"' : 'r."gameId"'
+
+    const value = customerId !== undefined ? customerId : gameId
+
+    where = `WHERE ${id} = ${value}`
+  }
 
   try {
-    if (customerId !== undefined || gameId !== undefined) {
-      const id = customerId !== undefined ? 'customerId' : 'gameId'
+    const { rows: rentals } = await connection.query(`
+    SELECT 
+    r.*, 
+    c.id AS "clientId", c.name AS "clientName",
+    g.id AS "gameID", g.name AS "gameName", g."categoryId",
+    categories.name AS "categoryName"
+    FROM rentals r
+    JOIN customers c ON r."customerId" = c.id
+    JOIN games g ON r."gameId" = g.id
+    JOIN categories ON g."categoryId" = categories.id
+    ${where}
+    `)
 
-      const value = customerId !== undefined ? customerId : gameId
+    const toSend = []
 
-      rentals = await connection.query(
-        `SELECT * FROM rentals WHERE "${id}" = $1`,
-        [value]
-      )
+    for (const item of rentals) {
+      const {
+        id,
+        customerId,
+        gameId,
+        rentDate,
+        daysRented,
+        returnDate,
+        originalPrice,
+        delayFee
+      } = item
 
-      rentals = rentals.rows
-    } else {
-      const { rows: aux } = await connection.query(`
-      SELECT 
-      r.*, 
-      c.id AS "clientId", c.name AS "clientName",
-      g.id AS "gameID", g.name AS "gameName", g."categoryId",
-      categories.name AS "categoryName"
-      FROM rentals r
-      JOIN customers c ON r."customerId" = c.id
-      JOIN games g ON r."gameId" = g.id
-      JOIN categories ON g."categoryId" = categories.id
-      `)
+      const { clientId, clientName } = item
 
-      rentals = []
+      const { gameID, gameName, categoryId, categoryName } = item
 
-      for (const item of aux) {
-        const {
-          id,
-          customerId,
-          gameId,
-          rentDate,
-          daysRented,
-          returnDate,
-          originalPrice,
-          delayFee
-        } = item
-
-        const { clientId, clientName } = item
-
-        const { gameID, gameName, categoryId, categoryName } = item
-
-        const formatRentals = {
-          id,
-          customerId,
-          gameId,
-          rentDate,
-          daysRented,
-          returnDate,
-          originalPrice,
-          delayFee,
-          customer: { id: clientId, name: clientName },
-          game: { id: gameID, name: gameName, categoryId, categoryName }
-        }
-
-        rentals.push(formatRentals)
+      const formatRentals = {
+        id,
+        customerId,
+        gameId,
+        rentDate,
+        daysRented,
+        returnDate,
+        originalPrice,
+        delayFee,
+        customer: { id: clientId, name: clientName },
+        game: { id: gameID, name: gameName, categoryId, categoryName }
       }
+
+      toSend.push(formatRentals)
     }
 
-    return res.status(200).send(rentals)
+    return res.status(200).send(toSend)
   } catch (error) {
     console.log(error)
     return res.status(500).send(error)
@@ -115,6 +111,19 @@ export async function returnRentals(_, res) {
       'UPDATE rentals SET "returnDate" = $1, "delayFee" = $2',
       [now, delayFee]
     )
+
+    return res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send(error)
+  }
+}
+
+export async function deleteRentals(req, res) {
+  const { id } = req.params
+
+  try {
+    await connection.query('DELETE FROM rentals WHERE id = $1', [id])
 
     return res.sendStatus(200)
   } catch (error) {

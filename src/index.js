@@ -1,19 +1,19 @@
 import express, { json } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import categoryRoute from './routes/categoryRoute.js'
-import gameRoute from './routes/gameRouter.js'
-import clientRoute from './routes/clientRoute.js'
-import rentsRoute from './routes/rentsRoute.js'
+import categoriesRoute from './routes/categoriesRoute.js'
+import gamesRoute from './routes/gamesRouter.js'
+import customersRoute from './routes/customersRoute.js'
+import rentalsRoute from './routes/rentalsRoute.js'
 
 const app = express()
 app.use(json())
 dotenv.config()
 app.use(cors())
 
-app.use(categoryRoute)
-app.use(gameRoute)
-app.use(clientRoute)
-app.use(rentsRoute)
+app.use(categoriesRoute)
+app.use(gamesRoute)
+app.use(customersRoute)
+app.use(rentalsRoute)
 
 app.listen(process.env.PORT)
