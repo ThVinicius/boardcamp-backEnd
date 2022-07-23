@@ -24,74 +24,64 @@ export async function postRentals(req, res) {
 }
 
 export async function getRentals(req, res) {
-  const { customerId, gameId } = req.query
+  const { customerId, gameId, status, startDate } = req.query
   const { offset: queryOffset, limit: queryLimit } = req.query
+  const { order: queryOrder, desc: queryDesc } = req.query
+
+  let arrQueries = Object.entries({ customerId, gameId, status, startDate })
+
+  arrQueries = arrQueries.filter(queryValue => queryValue[1] !== undefined)
 
   let where = ''
 
-  if (customerId !== undefined || gameId !== undefined) {
-    where =
-      customerId !== undefined
-        ? `WHERE r."customerId" = ${customerId}`
-        : `WHERE r."gameId" = ${gameId}`
-  }
+  arrQueries.forEach((query, index) => {
+    const whereOrAnd = index === 0 ? 'WHERE' : 'AND'
+
+    switch (true) {
+      case query[0] === 'customerId' || query[0] === 'gameId':
+        const value = customerId !== undefined ? customerId : gameId
+
+        where += `${whereOrAnd} r."${query[0]}" = ${value}`
+        return
+
+      case query[0] === 'status':
+        const statusValue = status === 'open' ? 'IS NULL' : 'IS NOT NULL'
+
+        where += `${whereOrAnd} r."returnDate" ${statusValue}`
+        return
+
+      default:
+        where += `${whereOrAnd} r."rentDate" >= '${startDate}'`
+        return
+    }
+  })
 
   const offset = queryOffset !== undefined ? `OFFSET ${queryOffset}` : ''
 
   const limit = queryLimit !== undefined ? `LIMIT ${queryLimit}` : ''
 
+  const order = queryOrder !== undefined ? `"${queryOrder}"` : 'id'
+
+  const desc = queryDesc !== undefined ? 'DESC' : ''
+
   try {
     const { rows: rentals } = await connection.query(`
       SELECT 
       r.*, 
-      c.id AS "clientId", c.name AS "clientName",
-      g.id AS "gameID", g.name AS "gameName", g."categoryId",
-      categories.name AS "categoryName"
+      JSON_BUILD_OBJECT('id', c.id, 'name', c.name) AS customer,
+      JSON_BUILD_OBJECT('id', g.id, 'name', g.name, 'categoryId', g."categoryId", 'categoryName', categories.name) AS game
       FROM rentals r
       JOIN customers c ON r."customerId" = c.id
       JOIN games g ON r."gameId" = g.id
       JOIN categories ON g."categoryId" = categories.id
       ${where}
-      ORDER BY r.id
+      ORDER BY r.${order}
+      ${desc}
       ${offset}
       ${limit}
     `)
 
-    const toSend = []
-
-    for (const item of rentals) {
-      const {
-        id,
-        customerId,
-        gameId,
-        rentDate,
-        daysRented,
-        returnDate,
-        originalPrice,
-        delayFee
-      } = item
-
-      const { clientId, clientName } = item
-
-      const { gameID, gameName, categoryId, categoryName } = item
-
-      const formatRentals = {
-        id,
-        customerId,
-        gameId,
-        rentDate,
-        daysRented,
-        returnDate,
-        originalPrice,
-        delayFee,
-        customer: { id: clientId, name: clientName },
-        game: { id: gameID, name: gameName, categoryId, categoryName }
-      }
-
-      toSend.push(formatRentals)
-    }
-
-    return res.status(200).send(toSend)
+    return res.status(200).send(rentals)
   } catch (error) {
     console.log(error)
     return res.status(500).send(error)

@@ -2,6 +2,7 @@ import connection from '../database/postgres.js'
 
 export async function getCustomers(req, res) {
   const { cpf, offset: queryOffset, limit: queryLimit } = req.query
+  const { order: queryOrder, desc: queryDesc } = req.query
 
   const where = cpf !== undefined ? `WHERE cpf LIKE '${cpf}%'` : ''
 
@@ -9,9 +10,13 @@ export async function getCustomers(req, res) {
 
   const limit = queryLimit !== undefined ? `LIMIT ${queryLimit}` : ''
 
+  const order = queryOrder !== undefined ? `"${queryOrder}"` : 'id'
+
+  const desc = queryDesc !== undefined ? 'DESC' : ''
+
   try {
     const { rows: clients } = await connection.query(
-      `SELECT * FROM customers ${where} ORDER BY id ${offset} ${limit}`
+      `SELECT * FROM customers ${where} ORDER BY ${order} ${desc} ${offset} ${limit}`
     )
 
     return res.status(200).send(clients)

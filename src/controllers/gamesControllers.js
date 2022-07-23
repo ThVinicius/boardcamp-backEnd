@@ -20,6 +20,7 @@ export async function postGames(req, res) {
 
 export async function getGames(req, res) {
   const { name, offset: queryOffset, limit: queryLimit } = req.query
+  const { order: queryOrder, desc: queryDesc } = req.query
 
   const where =
     name !== undefined ? `WHERE LOWER(g.name) LIKE LOWER('${name}%')` : ''
@@ -28,12 +29,17 @@ export async function getGames(req, res) {
 
   const limit = queryLimit !== undefined ? `LIMIT ${queryLimit}` : ''
 
+  const order = queryOrder !== undefined ? `"${queryOrder}"` : 'id'
+
+  const desc = queryDesc !== undefined ? 'DESC' : ''
+
   try {
     const { rows: games } = await connection.query(`
         SELECT g.*, c.name AS "categoryName" FROM games g 
         JOIN categories c ON g."categoryId" = c.id
         ${where}
-        ORDER BY g.id
+        ORDER BY g.${order}
+        ${desc}
         ${offset}
         ${limit}
       `)
