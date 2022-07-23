@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import checkNameValidate from '../middlewares/checkNameValidate.js'
-import postGameValidate from '../middlewares/postGameValidate.js'
-import queryGameValidate from '../middlewares/queryGameValidate.js'
-import { postGame, getGames } from '../controllers/gameControllers.js'
+import gamesValidate from '../middlewares/gamesValidate.js'
+import queryValidate from '../middlewares/queryValidate.js'
+import { postGames, getGames } from '../controllers/gamesControllers.js'
 
 const route = Router()
 
-route.post('/games', postGameValidate, checkNameValidate, postGame)
-route.get('/games', queryGameValidate, getGames)
+route.post('/games', gamesValidate, checkNameValidate, postGames)
+route.get('/games', queryValidate, getGames)
 
 export default route

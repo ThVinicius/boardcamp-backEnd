@@ -1,28 +1,27 @@
 import connection from '../database/postgres.js'
 
-export async function getClient(req, res) {
+export async function getCustomers(req, res) {
+  const { cpf, offset: queryOffset, limit: queryLimit } = req.query
+
+  const where = cpf !== undefined ? `WHERE cpf LIKE '${cpf}%'` : ''
+
+  const offset = queryOffset !== undefined ? `OFFSET ${queryOffset}` : ''
+
+  const limit = queryLimit !== undefined ? `LIMIT ${queryLimit}` : ''
+
   try {
-    const { cpf } = req.query
+    const { rows: clients } = await connection.query(
+      `SELECT * FROM customers ${where} ORDER BY id ${offset} ${limit}`
+    )
 
-    if (cpf !== undefined) {
-      const clients = await connection.query(
-        'SELECT * FROM customers WHERE cpf LIKE $1',
-        [`${cpf}%`]
-      )
-
-      return res.status(200).send(clients.rows)
-    }
-
-    const clients = await connection.query('SELECT * FROM customers')
-
-    return res.status(200).send(clients.rows)
+    return res.status(200).send(clients)
   } catch (error) {
     console.log(error)
     return res.status(500).send(error)
   }
 }
 
-export async function postClient(req, res) {
+export async function postCustomers(req, res) {
   const { name, phone, cpf, birthday } = req.body
 
   try {
@@ -38,7 +37,7 @@ export async function postClient(req, res) {
   }
 }
 
-export async function getClientById(req, res) {
+export async function getCustomersById(req, res) {
   const { id } = req.params
 
   try {
@@ -56,7 +55,7 @@ export async function getClientById(req, res) {
   }
 }
 
-export async function updateClient(req, res) {
+export async function updateCustomers(req, res) {
   try {
     const { name, phone, cpf, birthday } = req.body
     const { id } = req.params

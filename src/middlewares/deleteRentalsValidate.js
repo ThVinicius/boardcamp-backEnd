@@ -5,7 +5,7 @@ export default async function deleteRentalsValidate(req, res, next) {
 
   try {
     const { rows: rental } = await connection.query(
-      'SELECT * FROM rentals WHERE id = $1',
+      'SELECT * FROM rentals WHERE id = $1 LIMIT 1',
       [id]
     )
 

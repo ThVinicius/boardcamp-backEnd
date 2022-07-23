@@ -24,32 +24,37 @@ export async function postRentals(req, res) {
 }
 
 export async function getRentals(req, res) {
-  const { customerId } = req.query
-
-  const { gameId } = req.query
+  const { customerId, gameId } = req.query
+  const { offset: queryOffset, limit: queryLimit } = req.query
 
   let where = ''
 
   if (customerId !== undefined || gameId !== undefined) {
-    const id = customerId !== undefined ? 'r."customerId"' : 'r."gameId"'
-
-    const value = customerId !== undefined ? customerId : gameId
-
-    where = `WHERE ${id} = ${value}`
+    where =
+      customerId !== undefined
+        ? `WHERE r."customerId" = ${customerId}`
+        : `WHERE r."gameId" = ${gameId}`
   }
+
+  const offset = queryOffset !== undefined ? `OFFSET ${queryOffset}` : ''
+
+  const limit = queryLimit !== undefined ? `LIMIT ${queryLimit}` : ''
 
   try {
     const { rows: rentals } = await connection.query(`
-    SELECT 
-    r.*, 
-    c.id AS "clientId", c.name AS "clientName",
-    g.id AS "gameID", g.name AS "gameName", g."categoryId",
-    categories.name AS "categoryName"
-    FROM rentals r
-    JOIN customers c ON r."customerId" = c.id
-    JOIN games g ON r."gameId" = g.id
-    JOIN categories ON g."categoryId" = categories.id
-    ${where}
+      SELECT 
+      r.*, 
+      c.id AS "clientId", c.name AS "clientName",
+      g.id AS "gameID", g.name AS "gameName", g."categoryId",
+      categories.name AS "categoryName"
+      FROM rentals r
+      JOIN customers c ON r."customerId" = c.id
+      JOIN games g ON r."gameId" = g.id
+      JOIN categories ON g."categoryId" = categories.id
+      ${where}
+      ORDER BY r.id
+      ${offset}
+      ${limit}
     `)
 
     const toSend = []

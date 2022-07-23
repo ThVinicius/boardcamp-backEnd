@@ -1,14 +1,15 @@
 import { Router } from 'express'
-import categoryValidate from '../middlewares/categoryValidate.js'
+import categoriesValidate from '../middlewares/categoriesValidate.js'
 import checkNameValidate from '../middlewares/checkNameValidate.js'
+import queryValidate from '../middlewares/queryValidate.js'
 import {
   getCategories,
-  postCategory
-} from '../controllers/categoryControllers.js'
+  postCategories
+} from '../controllers/categoriesControllers.js'
 
 const route = Router()
 
-route.get('/categories', getCategories)
-route.post('/categories', categoryValidate, checkNameValidate, postCategory)
+route.get('/categories', queryValidate, getCategories)
+route.post('/categories', categoriesValidate, checkNameValidate, postCategories)
 
 export default route

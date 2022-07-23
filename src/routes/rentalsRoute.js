@@ -3,6 +3,7 @@ import postRentalsValidate from '../middlewares/postRentalsValidate.js'
 import idParamsValidate from '../middlewares/idParamsValidate.js'
 import returnRentalsValidate from '../middlewares/returnRentalsValidate.js'
 import deleteRentalsValidate from '../middlewares/deleteRentalsValidate.js'
+import queryValidate from '../middlewares/queryValidate.js'
 import {
   postRentals,
   getRentals,
@@ -13,7 +14,7 @@ import {
 const route = Router()
 
 route.post('/rentals', postRentalsValidate, postRentals)
-route.get('/rentals', getRentals)
+route.get('/rentals', queryValidate, getRentals)
 route.post(
   '/rentals/:id/return',
   idParamsValidate,

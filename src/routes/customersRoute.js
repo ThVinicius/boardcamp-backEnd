@@ -1,26 +1,26 @@
 import { Router } from 'express'
-import queryStringCpfValidate from '../middlewares/queryStringCpfValidate.js'
-import clientValidate from '../middlewares/clientValidate.js'
+import queryValidate from '../middlewares/queryValidate.js'
+import customersValidate from '../middlewares/customersValidate.js'
 import idParamsValidate from '../middlewares/idParamsValidate.js'
 import checkCpf from '../middlewares/checkCpf.js'
 import {
-  getClient,
-  postClient,
-  getClientById,
-  updateClient
-} from '../controllers/clientControllers.js'
+  getCustomers,
+  postCustomers,
+  getCustomersById,
+  updateCustomers
+} from '../controllers/customersControllers.js'
 
 const route = Router()
 
-route.get('/customers', queryStringCpfValidate, getClient)
-route.post('/customers', clientValidate, checkCpf, postClient)
-route.get('/customers/:id', idParamsValidate, getClientById)
+route.get('/customers', queryValidate, getCustomers)
+route.post('/customers', customersValidate, checkCpf, postCustomers)
+route.get('/customers/:id', idParamsValidate, getCustomersById)
 route.put(
   '/customers/:id',
   idParamsValidate,
-  clientValidate,
+  customersValidate,
   checkCpf,
-  updateClient
+  updateCustomers
 )
 
 export default route
