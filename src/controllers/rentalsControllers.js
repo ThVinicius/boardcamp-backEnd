@@ -126,3 +126,20 @@ export async function deleteRentals(req, res) {
     return res.status(500).send(error)
   }
 }
+
+export async function getMetrics(_, res) {
+  try {
+    const { rows: metrics } = await connection.query(`
+      SELECT 
+        SUM("originalPrice" + COALESCE("delayFee", 0)) AS revenue,
+        COUNT(id) AS rentals,
+        AVG("originalPrice" + COALESCE("delayFee", 0)) AS average
+      FROM rentals
+    `)
+
+    return res.status(200).send(metrics[0])
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send(error)
+  }
+}

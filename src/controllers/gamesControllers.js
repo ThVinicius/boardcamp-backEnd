@@ -35,13 +35,17 @@ export async function getGames(req, res) {
 
   try {
     const { rows: games } = await connection.query(`
-        SELECT g.*, c.name AS "categoryName" FROM games g 
-        JOIN categories c ON g."categoryId" = c.id
-        ${where}
-        ORDER BY g.${order}
-        ${desc}
-        ${offset}
-        ${limit}
+        SELECT 
+          g.*, c.name AS "categoryName", COUNT(r."gameId") AS "rentalsCount" 
+          FROM games g 
+          JOIN categories c ON g."categoryId" = c.id
+          JOIN rentals r ON g.id = r."gameId"
+          GROUP BY g.id, c.name
+          ${where}
+          ORDER BY g.${order}
+          ${desc}
+          ${offset}
+          ${limit}
       `)
 
     return res.status(200).send(games)

@@ -8,13 +8,15 @@ import {
   postRentals,
   getRentals,
   returnRentals,
-  deleteRentals
+  deleteRentals,
+  getMetrics
 } from '../controllers/rentalsControllers.js'
 
 const route = Router()
 
 route.post('/rentals', postRentalsValidate, postRentals)
 route.get('/rentals', queryValidate, getRentals)
+route.get('/rentals/metrics', getMetrics)
 route.post(
   '/rentals/:id/return',
   idParamsValidate,
