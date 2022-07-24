@@ -39,7 +39,7 @@ export async function getGames(req, res) {
           g.*, c.name AS "categoryName", COUNT(r."gameId") AS "rentalsCount" 
           FROM games g 
           JOIN categories c ON g."categoryId" = c.id
-          JOIN rentals r ON g.id = r."gameId"
+          LEFT JOIN rentals r ON g.id = r."gameId"
           GROUP BY g.id, c.name
           ${where}
           ORDER BY g.${order}
