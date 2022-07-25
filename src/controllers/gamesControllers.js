@@ -40,8 +40,8 @@ export async function getGames(req, res) {
           FROM games g 
           JOIN categories c ON g."categoryId" = c.id
           LEFT JOIN rentals r ON g.id = r."gameId"
-          GROUP BY g.id, c.name
           ${where}
+          GROUP BY g.id, c.name
           ORDER BY g.${order}
           ${desc}
           ${offset}

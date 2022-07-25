@@ -19,8 +19,8 @@ export async function getCustomers(req, res) {
       SELECT 
         c.*, COUNT(r."customerId") AS "rentalsCount" FROM customers c
       LEFT JOIN rentals r ON c.id = r."customerId"
+      ${where}
       GROUP BY c.id
-      ${where} 
       ORDER BY 
       ${order} 
       ${desc} 
