@@ -122,9 +122,9 @@ export async function getMetrics(_, res) {
   try {
     const { rows: metrics } = await connection.query(`
       SELECT 
-        SUM("originalPrice" + COALESCE("delayFee", 0)) AS revenue,
-        COUNT(id) AS rentals,
-        AVG("originalPrice" + COALESCE("delayFee", 0)) AS average
+        SUM("originalPrice" + COALESCE("delayFee", 0))::INTEGER AS revenue,
+        COUNT(id)::INTEGER AS rentals,
+        AVG("originalPrice" + COALESCE("delayFee", 0))::FLOAT AS average
       FROM rentals
     `)
 

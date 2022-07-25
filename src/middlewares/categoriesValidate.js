@@ -5,6 +5,6 @@ export default function categoriesValidate(req, res, next) {
 
   if (error) return res.sendStatus(400)
 
-  res.locals.type = 'categories'
+  res.locals.table = 'categories'
   next()
 }

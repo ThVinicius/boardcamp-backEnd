@@ -6,7 +6,7 @@ export default async function returnRentalsValidate(req, res, next) {
   try {
     const { rows: rental } = await connection.query(
       `SELECT 
-        r.id, TO_CHAR(r."rentDate", 'YYYY-MM-DD') AS "rentDate", r."daysRented", 
+        r.id, r."rentDate"::VARCHAR, r."daysRented", 
         (CURRENT_DATE - r."rentDate") AS daysDiff, r."returnDate",
         g."pricePerDay" 
         FROM rentals r 

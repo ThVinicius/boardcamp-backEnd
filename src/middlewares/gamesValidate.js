@@ -5,7 +5,7 @@ export default function gamesValidate(req, res, next) {
 
   if (error) return res.sendStatus(400)
 
-  res.locals.type = 'games'
+  res.locals.table = 'games'
 
   next()
 }

@@ -2,10 +2,10 @@ import connection from '../database/postgres.js'
 
 export default async function checkNameValidate(req, res, next) {
   try {
-    const { type } = res.locals
+    const { table } = res.locals
 
     const checkName = await connection.query(
-      `SELECT * FROM ${type} WHERE name = $1 LIMIT 1`,
+      `SELECT * FROM ${table} WHERE name = $1 LIMIT 1`,
       [req.body.name]
     )
 
